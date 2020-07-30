@@ -160,4 +160,34 @@ Tips: Eden / FromSurvivor / ToSurvivor 是被同一批GC大军扫荡的(Young GC
 
 #### 垃圾回收算法 -- 复制算法
 
+线程: 使用前将内存划分为大小相同的两块, 用垃圾标记算法标记出垃圾实例, 再将正使用这边的健在实例复制到另一个区域. 
+
+![复制算法](https://mmbiz.qpic.cn/mmbiz_png/9ptCsLpiaicQOxLFgAKJa6UOdckxbKeEOr2aColkSt7rcIJNoCU0t4OMnIO6GkoEPRKKac8Nib8XJr5pqMicM4FpVg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
 #### 垃圾回收算法 -- 标记压缩
+
+线程: 用垃圾标记算法标记出垃圾实例, 将存活的实例向一端移动, 再清理掉另一段的垃圾数据.
+
+![标记压缩](https://mmbiz.qpic.cn/mmbiz_png/9ptCsLpiaicQOxLFgAKJa6UOdckxbKeEOribl1PSsZiaTricFxwBWqlxzMibPSo4aCYOsgia8I2t91RVAeEC3nAeXTnIg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+#### 垃圾回收器 -- CMS
+
+* 初始标记 (stop the world)
+* 并发标记
+* 重新标记 (stop the world)
+* 并发清除
+
+```text
+初始标记仅仅只是标记一下GC Roots能直接关联到的对象, 速度很快;
+并发标记就是进行Gc Roots Tracing的过程;
+重新标记则是为了修正并发标记期间, 因用户程序继续运行而导致的标记产生变动的那一部分对象的标记记录, 这个阶段停顿时间一般比初始标记时间长, 但是远比并发标记时间短;
+整个过程中并发标记时间最长, 但此时可以和用户线程一起工作.
+```
+
+#### 垃圾回收器 -- G1
+
+线程: 基于标记压缩算法, 将整个Java堆(包括新生代/老年代)划分为多个大小固定的独立区域, 并且跟踪这些区域垃圾堆积程度, 维护一个优先级列表, 每次根据允许的收集时间, 优先回收垃圾最多的区域, 从而获得更高的效率.
+
+## 参考资料
+
+https://mp.weixin.qq.com/s/_70aAdBi6MjIguzGpSb2IQ
