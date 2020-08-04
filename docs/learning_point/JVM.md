@@ -188,6 +188,6 @@ Tips: Eden / FromSurvivor / ToSurvivor 是被同一批GC大军扫荡的(Young GC
 
 线程: 基于标记压缩算法, 将整个Java堆(包括新生代/老年代)划分为多个大小固定的独立区域, 并且跟踪这些区域垃圾堆积程度, 维护一个优先级列表, 每次根据允许的收集时间, 优先回收垃圾最多的区域, 从而获得更高的效率.
 
-## 参考资料
+## 学习资料
 
 https://mp.weixin.qq.com/s/_70aAdBi6MjIguzGpSb2IQ
