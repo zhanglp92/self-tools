@@ -6,9 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 @Log4j2
 public class CodeTest {
@@ -84,16 +82,41 @@ public class CodeTest {
         codeTest.learningStack();
         codeTest.learningList();
 
-        List<Future<?>> futureList = Lists.newArrayListWithCapacity(5);
+
+        // 信号量
+        Semaphore semaphore = new Semaphore(1);
+
+        // 设置障碍点
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(5, () -> log.info("屏障Run 当前线程ID = {}", Thread.currentThread().getId()));
+
+        // 线程等待
+        final CountDownLatch countDownLatch = new CountDownLatch(5);
 
         for (int idx = 0; idx < 5; idx++) {
-            futureList.add(new SimpleAsyncTaskExecutor("test-simple").submit(() -> {
+            new SimpleAsyncTaskExecutor("test-simple").submit(() -> {
+                try {
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    log.info("信号量获取失败");
+                }
+
                 try {
                     codeTest.noSyncTest();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                } finally {
+                    semaphore.release();
+
+                    countDownLatch.countDown();
+                    try {
+                        log.info("设置屏障点, ID={}", Thread.currentThread().getId());
+                        cyclicBarrier.await();
+                        log.info("屏障结束, ID={}", Thread.currentThread().getId());
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        log.info("设置屏障点异常, e=", e);
+                    }
                 }
-            }));
+            });
         }
 
 //        for (int idx = 0; idx < 5; idx++) {
@@ -103,12 +126,8 @@ public class CodeTest {
 //            log.info("当前线程 - {} 执行结束, 耗时 = {}", Thread.currentThread().getId(), System.currentTimeMillis() - beginTime);
 //        }
 
-        futureList.forEach(future -> {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        });
+        log.info("等待线程执行结束...");
+        countDownLatch.await(4, TimeUnit.SECONDS);
+        log.info("all done");
     }
 }
