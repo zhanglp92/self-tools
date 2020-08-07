@@ -75,6 +75,7 @@ B+来自B, B+树与B树的不同在于:
 * 物理地址: 内存条地址, BUS总所能访问的地址;
 
 [介绍, 举例描述很清楚](https://www.zhihu.com/question/29918252)
+
 [加深概念理解](https://blog.csdn.net/macrossdzh/article/details/5954763)
 
 ## 复习方向
