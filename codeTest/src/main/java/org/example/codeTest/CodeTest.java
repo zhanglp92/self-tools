@@ -5,8 +5,14 @@ import com.google.common.collect.Lists;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Log4j2
 public class CodeTest {
@@ -65,7 +71,8 @@ public class CodeTest {
     }
 
     private void learningMap() {
-        Map<Integer, Integer> map = new HashMap<>();
+//        Map<Integer, Integer> map = new HashMap<>();
+        Map<Integer, Integer> map = new ConcurrentHashMap<>();
 
         map.put(1, 1);
         map.put(2, 2);
@@ -74,14 +81,8 @@ public class CodeTest {
         map.containsKey(2);
     }
 
-
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    private void testJUC() throws InterruptedException {
         CodeTest codeTest = new CodeTest();
-        codeTest.learningMap();
-        codeTest.learningSet();
-        codeTest.learningStack();
-        codeTest.learningList();
-
 
         // 信号量
         Semaphore semaphore = new Semaphore(1);
@@ -92,8 +93,18 @@ public class CodeTest {
         // 线程等待
         final CountDownLatch countDownLatch = new CountDownLatch(5);
 
+        ReentrantLock reentrantLock = new ReentrantLock();
+
         for (int idx = 0; idx < 5; idx++) {
             new SimpleAsyncTaskExecutor("test-simple").submit(() -> {
+                try {
+                    log.info("线程尝试加锁 = {}", Thread.currentThread().getId());
+                    reentrantLock.tryLock(1, TimeUnit.SECONDS);
+                    log.info("线程尝试加锁成功 = {}", Thread.currentThread().getId());
+                } catch (InterruptedException e) {
+                    log.info("尝试加锁失败, e=", e);
+                }
+
                 try {
                     semaphore.acquire();
                 } catch (InterruptedException e) {
@@ -105,6 +116,8 @@ public class CodeTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
+                    reentrantLock.unlock();
+
                     semaphore.release();
 
                     countDownLatch.countDown();
@@ -129,5 +142,52 @@ public class CodeTest {
         log.info("等待线程执行结束...");
         countDownLatch.await(4, TimeUnit.SECONDS);
         log.info("all done");
+    }
+
+    private void testRLock() throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(5);
+
+        Lock reentrantLock = new ReentrantLock();
+        Condition condition = reentrantLock.newCondition();
+
+
+        for (int idx = 0; idx < 5; idx++) {
+            new SimpleAsyncTaskExecutor("test-RLock").submit(() -> {
+                try {
+                    boolean success = reentrantLock.tryLock(1, TimeUnit.SECONDS);
+                    log.info("锁的状态 = {}, ThreadID={}", success, Thread.currentThread().getId());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                log.info("do something = {}", Thread.currentThread().getId());
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                log.info("释放锁 = {}", Thread.currentThread().getId());
+                reentrantLock.unlock();
+                log.info("释放锁成功 = {}", Thread.currentThread().getId());
+
+                countDownLatch.countDown();
+            });
+        }
+
+        log.info("等待线程全部释放...");
+        countDownLatch.await();
+        log.info("线程全部释放");
+    }
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
+        CodeTest codeTest = new CodeTest();
+        codeTest.learningMap();
+//        codeTest.learningSet();
+//        codeTest.learningStack();
+//        codeTest.learningList();
+
+        codeTest.testRLock();
     }
 }
