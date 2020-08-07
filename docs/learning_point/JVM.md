@@ -190,4 +190,5 @@ Tips: Eden / FromSurvivor / ToSurvivor 是被同一批GC大军扫荡的(Young GC
 
 ## 学习资料
 
-https://mp.weixin.qq.com/s/_70aAdBi6MjIguzGpSb2IQ
+* https://mp.weixin.qq.com/s/_70aAdBi6MjIguzGpSb2IQ
+* [GC参数配置](https://zhuanlan.zhihu.com/p/83804324)
