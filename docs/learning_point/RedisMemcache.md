@@ -48,6 +48,12 @@
 * RDB 保存某个时刻的数据状态到RDB文件中, 可以手动执行, 也可以定时执行.
 * AOF 将服务器执行的命令保存到AOF文件中, 还原时执行一边命令即可.
 
+#### scan命令
+
+* 功能: 迭代全局KEY, 分批返回. (设置的count参数并不是实际的返回个数, 猜想是hash拉链的补全)
+* 维护: 全局KEY使用HashTable维护, 定会设计到rehash
+* 游标: 游标设计从高位倒着自增. (为了不受rehash的影响, 每次rehash都是成倍增长/减小, 所以也能保证迭代过的不会在被迭代)
+
 ## 关键字解释
 
 | 关键词 | 解释 | 备注 |
@@ -59,3 +65,4 @@
 
 * [Redis为什么快](https://zhuanlan.zhihu.com/p/52600663)
 * [Redis数据结构描述](https://i6448038.github.io/2019/12/01/redis-data-struct/)
+* [Redis持久化](https://blog.csdn.net/ljheee/article/details/76284082)
