@@ -66,3 +66,5 @@
 * [Redis为什么快](https://zhuanlan.zhihu.com/p/52600663)
 * [Redis数据结构描述](https://i6448038.github.io/2019/12/01/redis-data-struct/)
 * [Redis持久化](https://blog.csdn.net/ljheee/article/details/76284082)
+* [Redis Scan 理解](https://juejin.im/post/6844903688528461831)
+* [epoll内部简单处理逻辑](https://blog.csdn.net/tianjing0805/article/details/76021440)

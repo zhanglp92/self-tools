@@ -1,4 +1,4 @@
-package org.example.sort;
+package org.example.exercise;
 
 import lombok.extern.log4j.Log4j2;
 import org.example.data.GenData;
@@ -45,14 +45,12 @@ public class HeapSort {
         }
     }
 
-    public static <T extends Comparable<T>> T[] sort(T[] data) {
+    public static <T extends Comparable<T>> void sort(T[] data) {
         // 1. 初始化堆
         initHeap(data);
 
         // 2. 拆堆
         unpack(data);
-
-        return data;
     }
 
     public static void main(String[] args) {
